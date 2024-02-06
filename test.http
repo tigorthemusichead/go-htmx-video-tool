@@ -1,0 +1,17 @@
+### Health check
+POST http://localhost:8081/api/health
+Content-Type: application/json
+
+{
+
+}
+
+### Merge Audio and video
+POST http://localhost:8081/api/merge
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="audioFile"
+
+audioFile
+--WebAppBoundary--
