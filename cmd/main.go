@@ -33,5 +33,5 @@ func main() {
 
 	fmt.Println("Starting api on port 8081")
 
-	log.Fatal(http.ListenAndServe(":8081", c))
+	log.Fatal(http.ListenAndServeTLS(":8081", "server.pem", "server.key", c))
 }
