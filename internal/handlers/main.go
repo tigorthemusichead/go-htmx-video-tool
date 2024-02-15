@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -11,6 +12,11 @@ import (
 )
 
 const OutputDir = "/tmp/files"
+
+type MergePhotosAndAudiosResponse struct {
+	Success  bool
+	VideoSrc string
+}
 
 func MergePhotosAndAudioHandler(w http.ResponseWriter, r *http.Request) {
 	formKeys := []string{"photoFile", "audioFile"}
@@ -46,7 +52,14 @@ func MergePhotosAndAudioHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//http.Redirect(w, r, "/files/"+outputFileName, http.StatusSeeOther)
+	data, err := json.Marshal(MergePhotosAndAudiosResponse{true, fmt.Sprintf("/files/%s", outputFileName)})
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(err.Error()))
+		return
+	}
 	w.WriteHeader(201)
-	w.Write([]byte(fmt.Sprintf("<video src=\"%s%s\" controls></video>", "/files/", outputFileName)))
+	w.Write(data)
+	// w.Write([]byte(fmt.Sprintf("<video src=\"%s%s\" controls></video>", "/files/", outputFileName)))
 	return
 }

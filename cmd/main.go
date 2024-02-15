@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	gHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -22,6 +23,15 @@ func main() {
 
 	r.PathPrefix("/files/").Handler(http.StripPrefix("/files/", http.FileServer(http.Dir("/tmp/files"))))
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+
+	credentials := gHandlers.AllowCredentials()
+	methods := gHandlers.AllowedMethods([]string{"*"})
+	ttl := gHandlers.MaxAge(3600)
+	origins := gHandlers.AllowedOrigins([]string{"*"})
+
+	c := gHandlers.CORS(credentials, methods, ttl, origins)(r)
+
 	fmt.Println("Starting api on port 8081")
-	log.Fatal(http.ListenAndServe(":8081", r))
+
+	log.Fatal(http.ListenAndServe(":8081", c))
 }

@@ -11,4 +11,4 @@ services:
     command:
       go run /app/cmd/main.go
     ports:
-      - "8081:8081"
+      - "80:8081"
