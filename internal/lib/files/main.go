@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const op = "/internal/lib/files"
@@ -54,7 +55,14 @@ func DeleteFile(filePath string) error {
 	if err != nil {
 		return err
 	}
-
 	fmt.Printf("File %s deleted successfully.\n", filePath)
 	return nil
+}
+
+func ScheduleFileDeletion(filePath string, delay time.Duration) {
+	time.Sleep(delay)
+	err := DeleteFile(filePath)
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
 }

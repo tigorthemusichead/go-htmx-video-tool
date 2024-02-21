@@ -12,7 +12,7 @@
   <main class="container">
     <section class="row mt-5">
       <div class="col-sm">
-        <form hx-post="/api/merge" hx-swap="outerHTML" hx-target="#video-placeholder" enctype="multipart/form-data">
+        <form hx-post="/htmx/merge" hx-swap="outerHTML" hx-target="#video-placeholder" enctype="multipart/form-data">
           <div class="mb-3">
             <label class="font-weight-bold" for="audioFile">Audio File</label>
             <input id="audioFile" type="file" name="audioFile" accept="audio/*" class="form-control">

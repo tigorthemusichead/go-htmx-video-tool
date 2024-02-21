@@ -1,4 +1,4 @@
-package handlers
+package merge_handlers
 
 import (
 	"encoding/base64"
@@ -14,11 +14,20 @@ import (
 const OutputDir = "/tmp/files"
 
 type MergePhotosAndAudiosResponse struct {
-	Success  bool
-	VideoSrc string
+	Success        bool
+	VideoSrc       string
+	VideoCreatedAt string
 }
 
 func MergePhotosAndAudioHandler(w http.ResponseWriter, r *http.Request) {
+	mergePhotosAndAudioHandler(w, r, false)
+}
+
+func MergePhotosAndAudioHandlerHTMX(w http.ResponseWriter, r *http.Request) {
+	mergePhotosAndAudioHandler(w, r, true)
+}
+
+func mergePhotosAndAudioHandler(w http.ResponseWriter, r *http.Request, isHTMX bool) {
 	formKeys := []string{"photoFile", "audioFile"}
 	var createdFiles []string
 	err := r.ParseMultipartForm(32 << 20)
@@ -52,14 +61,24 @@ func MergePhotosAndAudioHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//http.Redirect(w, r, "/files/"+outputFileName, http.StatusSeeOther)
-	data, err := json.Marshal(MergePhotosAndAudiosResponse{true, fmt.Sprintf("/files/%s", outputFileName)})
+	data, err := json.Marshal(MergePhotosAndAudiosResponse{true, fmt.Sprintf("/files/%s", outputFileName), time.Now().UTC().Format(time.RFC3339)})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
 	}
+	for _, filePath := range createdFiles {
+		err = files.DeleteFile(filePath)
+	}
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
+	go files.ScheduleFileDeletion(outputFilePath, time.Minute*5)
 	w.WriteHeader(201)
-	w.Write(data)
-	// w.Write([]byte(fmt.Sprintf("<video src=\"%s%s\" controls></video>", "/files/", outputFileName)))
+	if isHTMX {
+		w.Write([]byte(fmt.Sprintf("<video src=\"%s%s\" controls></video>", "/files/", outputFileName)))
+	} else {
+		w.Write(data)
+	}
 	return
 }
